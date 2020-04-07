@@ -1,13 +1,13 @@
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
-// size of one box - 20x20
+// Size of one box: 20x20
 const box = 20;
 
-// size of snake piece - 18x18
+// Size of snake piece: 18x18
 const snakePiece = 18; 
 
-// padding around snake body
+// Padding around snake body
 const boxPadding = 2;
 
 // Load the images
@@ -25,6 +25,7 @@ const State = Object.freeze({
     GAME_OVER: 3
 });
 
+// Set current state
 let currentState = State.GET_READY;
 
 // Snake direction
