@@ -7,13 +7,9 @@ foodImage.src = "images/food.png";
 
 // Load sounds
 const Sounds = {
-	score: new Audio("sounds/sfx_score.mp3"),
-	die: new Audio("sounds/sfx_die.mp3")
+	//score: new Audio("sounds/sfx_score.mp3"),
+	//die: new Audio("sounds/sfx_die.mp3")
 }
-
-// Load the sound effects
-// const scoreSound = new Audio("sounds/sfx_score.mp3");
-// const dieSound = new Audio("sounds/sfx_die.mp3");
 
 // Box
 const Box = Object.freeze({
@@ -21,28 +17,63 @@ const Box = Object.freeze({
 	padding: 1
 });
 
-// Size of snake piece: 18x18
-// const snakePiece = Box.size - 2 * Box.padding; 
+// Game states
+const State = Object.freeze({
+	GET_READY: 1,
+	PLAYING: 2,
+	GAME_OVER: 3
+});
 
-// Score board
-const ScoreBoard = Object.freeze({
+// Set current state
+let currentState = State.GET_READY;
+
+// Directions
+const Direction = Object.freeze({
+	UP: 1,
+	RIGHT: 2,
+	DOWN: 3,
+	LEFT: 4
+});
+
+// Scoreboard
+const Scoreboard = Object.freeze({
 	x: 0,
 	y: 0,
 	width: canvas.width,
 	height: 50,
+	score: 0,
+	best: 0,
 
 	draw: function() {
-		context.fillStyle = "#663300";
+
+		// Background color
+		context.fillStyle = "#003300";//"#663300";
 		context.fillRect(this.x, this.y, this.width, this.height);
+
+		// Food
+		context.drawImage(foodImage, this.height / 2 - Food.height / 2, this.height / 2 - Food.height / 2);
+
+		// Score
+		context.lineWidth = 2;
+		context.font = "35px Teko";
+		context.fillStyle = "white";
+		context.fillText(this.score, this.height, this.height / 2 + Food.height / 2);
+		context.strokeText(this.score, this.height, this.height / 2 + Food.height / 2);
+	},
+
+	reset: function() {
+
+		// Reset score at the beginning of a new game
+		this.score = 0;
 	}
 });
 
 // Play area
 const PlayArea = Object.freeze({
 	x: 0,
-	y: ScoreBoard.height,
+	y: Scoreboard.height,
 	width: canvas.width,
-	height: canvas.height - ScoreBoard.height,
+	height: canvas.height - Scoreboard.height,
 	get horizontalRange() { return this.width / Box.size },
 	get verticalRange() { return this.height / Box.size },
 
@@ -56,38 +87,11 @@ const PlayArea = Object.freeze({
 // const horizontalRange = PlayArea.width / box;
 // const verticalRange = PlayArea.height / box;
 
-// Game states
-const State = Object.freeze({
-	GET_READY: 1,
-	PLAYING: 2,
-	GAME_OVER: 3
-});
-
-// Set current state
-let currentState = State.GET_READY;
-
-// Snake direction
-const Direction = Object.freeze({
-	UP: 1,
-	RIGHT: 2,
-	DOWN: 3,
-	LEFT: 4
-});
-
-// Set current direction
-let currentDirection = Direction.RIGHT;
-
 // Snake
 const Snake = {
 	pieceSize: Box.size - 2 * Box.padding,
-	body: [
-		{
-			x: PlayArea.width / 2 - Box.size / 2
-		},
-		{
-
-		}
-	],
+	direction: Direction.RIGHT,
+	body: [],
 
 	draw: function() {
 
@@ -95,12 +99,36 @@ const Snake = {
 
 	update: function() {
 
+	},
+
+	reset: function() {
+		this.direction = Direction.RIGHT;
+		this.body.splice(0, this.body.length);
+		this.body.push({
+			x: PlayArea.horizontalRange / 2,
+			y: PlayArea.verticalRange / 2
+		});
 	}
 }
 
 // Food
 const Food = {
+	x: 0,
+	y: 0,
+	height: Box.size,
+	width: Box.size,
 
+	draw: function() {
+
+	},
+
+	update: function() {
+
+	},
+
+	reset: function() {
+
+	}
 }
 
 // Score
@@ -139,6 +167,12 @@ function startGame() {
 	currentState = State.PLAYING;
 }
 
+// Game over
+function gameOver() {
+	currentState = State.GAME_OVER;
+	// play die sound
+}
+
 // Add click listener to the canvas
 canvas.addEventListener("click", function(event) {
 
@@ -147,43 +181,49 @@ canvas.addEventListener("click", function(event) {
 		case State.GET_READY:
 			startGame();
 			break;
-		
-		case State.PLAYING:
-			break;
 
 		case State.GAME_OVER:
-			let canvasCoordinates = canvas.getBoundingClientRect();
-			let clickX = event.clientX - canvasCoordinates.left;
-			let clickY = event.clientY - canvasCoordinates.top;
-
-			// Check if the "start" button is clicked
-			if (clickX >= startButton.x && clickX <= startButton.x + startButton.width &&
-				clickY >= startButton.y && clickY <= startButton.y + startButton.height) {
-
-				score.reset();
-				currentState = State.GET_READY;
-			}
-			
+			currentState = State.GET_READY;
 			break;
 	}
+
 });
 
 // Add key listener to the window
 window.addEventListener("keydown", function(event) {
 
-	// Check if the key pressed is "space bar"
-	if (event.keyCode == 32) {
+	let key = event.keyCode;
 
-		switch (currentState) {
+	switch (currentState) {
 
-			case State.GET_READY:
+		case State.GET_READY:
+			// Check for Enter or Spacebar keys
+			if (key == 13 || key == 32) {
 				startGame();
-				break;
-			
-			case State.PLAYING:
-				break;
-		}
+			}
+			break;
+
+		case State.PLAYING:
+			// Check for arrow keys
+			if (key == 37 && Snake.direction != Direction.RIGHT) {
+				Snake.direction = Direction.LEFT;
+			} else if (key == 38 && Snake.direction != Direction.DOWN) {
+				Snake.direction = Direction.UP;
+			} else if (key == 39 && Snake.direction != Direction.LEFT) {
+				Snake.direction = Direction.RIGHT;
+			} else if (key == 40 && Snake.direction != Direction.UP) {
+				Snake.direction = Direction.DOWN;
+			}
+			break;
+		
+		case State.GAME_OVER:
+			// Check for Enter or Spacebar keys
+			if (key == 13 || key == 32) {
+				currentState = State.GET_READY;
+			}
+			break;
 	}
+
 });
 
 // Update the objects
@@ -193,9 +233,7 @@ function update() {
 
 // Draw the objects
 function draw() {
-	// context.fillStyle = "#009933";
-	// context.fillRect(0, 0, canvas.width, canvas.height);
-	ScoreBoard.draw();
+	Scoreboard.draw();
 	PlayArea.draw();
 }
 
@@ -207,4 +245,5 @@ function loop() {
 	requestAnimationFrame(loop);
 }
 
-loop();
+// Refresh every 100 ms
+setInterval(loop, 100);
