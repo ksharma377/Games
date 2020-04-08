@@ -1,20 +1,11 @@
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
-// Box
-const Box = Object.freeze({
-	size: 20,
-	padding: 1
-});
-
-// Size of snake piece: 18x18
-// const snakePiece = Box.size - 2 * Box.padding; 
-
-// Load the images
+// Load images
 const foodImage = new Image();
 foodImage.src = "images/food.png";
 
-// Sounds
+// Load sounds
 const Sounds = {
 	score: new Audio("sounds/sfx_score.mp3"),
 	die: new Audio("sounds/sfx_die.mp3")
@@ -23,6 +14,15 @@ const Sounds = {
 // Load the sound effects
 // const scoreSound = new Audio("sounds/sfx_score.mp3");
 // const dieSound = new Audio("sounds/sfx_die.mp3");
+
+// Box
+const Box = Object.freeze({
+	size: 20,
+	padding: 1
+});
+
+// Size of snake piece: 18x18
+// const snakePiece = Box.size - 2 * Box.padding; 
 
 // Score board
 const ScoreBoard = Object.freeze({
@@ -76,58 +76,6 @@ const Direction = Object.freeze({
 
 // Set current direction
 let currentDirection = Direction.RIGHT;
-
-// Start the game
-function startGame() {
-	currentState = State.PLAYING;
-}
-
-// Add click listener to the canvas
-canvas.addEventListener("click", function(event) {
-
-	switch (currentState) {
-
-		case State.GET_READY:
-			startGame();
-			break;
-		
-		case State.PLAYING:
-			break;
-
-		case State.GAME_OVER:
-			let canvasCoordinates = canvas.getBoundingClientRect();
-			let clickX = event.clientX - canvasCoordinates.left;
-			let clickY = event.clientY - canvasCoordinates.top;
-
-			// Check if the "start" button is clicked
-			if (clickX >= startButton.x && clickX <= startButton.x + startButton.width &&
-				clickY >= startButton.y && clickY <= startButton.y + startButton.height) {
-
-				score.reset();
-				currentState = State.GET_READY;
-			}
-			
-			break;
-	}
-});
-
-// Add key listener to the window
-window.addEventListener("keydown", function(event) {
-
-	// Check if the key pressed is "space bar"
-	if (event.keyCode == 32) {
-
-		switch (currentState) {
-
-			case State.GET_READY:
-				startGame();
-				break;
-			
-			case State.PLAYING:
-				break;
-		}
-	}
-});
 
 // Snake
 const Snake = {
@@ -185,6 +133,58 @@ const score = {
 		this.value = 0;
 	}
 }
+
+// Start the game
+function startGame() {
+	currentState = State.PLAYING;
+}
+
+// Add click listener to the canvas
+canvas.addEventListener("click", function(event) {
+
+	switch (currentState) {
+
+		case State.GET_READY:
+			startGame();
+			break;
+		
+		case State.PLAYING:
+			break;
+
+		case State.GAME_OVER:
+			let canvasCoordinates = canvas.getBoundingClientRect();
+			let clickX = event.clientX - canvasCoordinates.left;
+			let clickY = event.clientY - canvasCoordinates.top;
+
+			// Check if the "start" button is clicked
+			if (clickX >= startButton.x && clickX <= startButton.x + startButton.width &&
+				clickY >= startButton.y && clickY <= startButton.y + startButton.height) {
+
+				score.reset();
+				currentState = State.GET_READY;
+			}
+			
+			break;
+	}
+});
+
+// Add key listener to the window
+window.addEventListener("keydown", function(event) {
+
+	// Check if the key pressed is "space bar"
+	if (event.keyCode == 32) {
+
+		switch (currentState) {
+
+			case State.GET_READY:
+				startGame();
+				break;
+			
+			case State.PLAYING:
+				break;
+		}
+	}
+});
 
 // Update the objects
 function update() {
