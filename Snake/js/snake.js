@@ -6,9 +6,9 @@ const foodImage = new Image();
 foodImage.src = "images/food.png";
 
 // Load sounds
-const Sounds = {
-	//score: new Audio("sounds/sfx_score.mp3"),
-	//die: new Audio("sounds/sfx_die.mp3")
+const Sound = {
+	SCORE: new Audio("sounds/sfx_score.mp3"),
+	DIE: new Audio("sounds/sfx_die.mp3")
 }
 
 // Box
@@ -170,7 +170,8 @@ function startGame() {
 // Game over
 function gameOver() {
 	currentState = State.GAME_OVER;
-	// play die sound
+	Sound.DIE.currentTime = 0;  // To play instantly, irrespective of previous sound finish
+	Sound.DIE.play();
 }
 
 // Add click listener to the canvas
@@ -237,13 +238,19 @@ function draw() {
 	PlayArea.draw();
 }
 
+// Reset the objects
+function reset() {
+	Scoreboard.reset();
+	Snake.reset();
+}
+
 // Keep refreshing every frame
 function loop() {
 	update();
 	draw();
-	frames++;
 	requestAnimationFrame(loop);
 }
 
+reset();
 // Refresh every 100 ms
 setInterval(loop, 100);
