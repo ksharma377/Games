@@ -1,22 +1,60 @@
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
-// Size of one box: 20x20
-const box = 20;
+// Box
+const Box = Object.freeze({
+    size: 20,
+    padding: 1
+});
 
 // Size of snake piece: 18x18
-const snakePiece = 18; 
-
-// Padding around snake body
-const boxPadding = 2;
+// const snakePiece = Box.size - 2 * Box.padding; 
 
 // Load the images
 const foodImage = new Image();
 foodImage.src = "images/food.png";
 
+// Sounds
+const Sounds = {
+    score: new Audio("sounds/sfx_score.mp3"),
+    die: new Audio("sounds/sfx_die.mp3")
+}
+
 // Load the sound effects
-const scoreSound = new Audio("sounds/sfx_score.mp3");
-const dieSound = new Audio("sounds/sfx_die.mp3");
+// const scoreSound = new Audio("sounds/sfx_score.mp3");
+// const dieSound = new Audio("sounds/sfx_die.mp3");
+
+// Score board
+const ScoreBoard = Object.freeze({
+    x: 0,
+    y: 0,
+    width: canvas.width,
+    height: 50,
+
+    draw: function() {
+        context.fillStyle = "#663300";
+        context.fillRect(this.x, this.y, this.width, this.height);
+    }
+});
+
+// Play area
+const PlayArea = Object.freeze({
+    x: 0,
+    y: ScoreBoard.height,
+    width: canvas.width,
+    height: canvas.height - ScoreBoard.height,
+    get horizontalRange() { return this.width / Box.size },
+    get verticalRange() { return this.height / Box.size },
+
+    draw: function() {
+        context.fillStyle = "#009933";
+        context.fillRect(this.x, this.y, this.width, this.height);
+    }
+});
+
+// // Horizontal and vertical range
+// const horizontalRange = PlayArea.width / box;
+// const verticalRange = PlayArea.height / box;
 
 // Game states
 const State = Object.freeze({
@@ -36,6 +74,7 @@ const Direction = Object.freeze({
     LEFT: 4
 });
 
+// Set current direction
 let currentDirection = Direction.RIGHT;
 
 // Start the game
@@ -90,6 +129,32 @@ window.addEventListener("keydown", function(event) {
     }
 });
 
+// Snake
+const Snake = {
+    pieceSize: Box.size - 2 * Box.padding,
+    body: [
+        {
+            x: PlayArea.width / 2 - Box.size / 2
+        },
+        {
+
+        }
+    ],
+
+    draw: function() {
+
+    },
+
+    update: function() {
+
+    }
+}
+
+// Food
+const Food = {
+
+}
+
 // Score
 const score = {
     best: 0,
@@ -128,8 +193,10 @@ function update() {
 
 // Draw the objects
 function draw() {
-    context.fillStyle = "#009933";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    // context.fillStyle = "#009933";
+    // context.fillRect(0, 0, canvas.width, canvas.height);
+    ScoreBoard.draw();
+    PlayArea.draw();
 }
 
 // Keep refreshing every frame
@@ -139,5 +206,6 @@ function loop() {
     frames++;
     requestAnimationFrame(loop);
 }
+
 
 loop();
