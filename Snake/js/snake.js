@@ -24,8 +24,8 @@ const State = Object.freeze({
 	GAME_OVER: 3
 });
 
-// Set current state
-let currentState = State.GET_READY;
+// To track the current game state
+let currentState;
 
 // Directions
 const Direction = Object.freeze({
@@ -277,8 +277,9 @@ function draw() {
 	Food.draw();
 }
 
-// Reset the objects
+// Reset the objects and the game state
 function reset() {
+	currentState = State.GET_READY;
 	Scoreboard.reset();
 	Snake.reset();
 	Food.reset();
