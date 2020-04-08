@@ -43,7 +43,6 @@ const Scoreboard = {
 	width: canvas.width,
 	height: 50,
 	score: 0,
-	best: 0,
 
 	draw: function() {
 
@@ -136,6 +135,11 @@ const Snake = {
 		// Add a new head
 		this.body.unshift(newHead);
 
+		// Check collision
+		if (Util.collisionOccured()) {
+			gameOver();
+		}
+
 		if (Util.foodEaten()) {
 
 			// Play score sound
@@ -205,6 +209,7 @@ canvas.addEventListener("click", function(event) {
 			break;
 
 		case State.GAME_OVER:
+			reset();
 			currentState = State.GET_READY;
 			break;
 	}
@@ -241,6 +246,7 @@ window.addEventListener("keydown", function(event) {
 		case State.GAME_OVER:
 			// Check for Enter or Spacebar keys
 			if (key == 13 || key == 32) {
+				reset();
 				currentState = State.GET_READY;
 			}
 			break;
@@ -271,18 +277,18 @@ function update() {
 
 // Draw the objects
 function draw() {
-	Scoreboard.draw();
 	PlayArea.draw();
 	Snake.draw();
 	Food.draw();
+	Scoreboard.draw();
 }
 
 // Reset the objects and the game state
 function reset() {
 	currentState = State.GET_READY;
-	Scoreboard.reset();
 	Snake.reset();
 	Food.reset();
+	Scoreboard.reset();
 }
 
 // Keep refreshing every frame
@@ -318,5 +324,25 @@ const Util = {
 	// To check if the snake collided with itself or the walls
 	collisionOccured: function() {
 
+		const snakeHead = Snake.body[0];
+
+		// Check collision with vertical borders
+		if (snakeHead.x < 0 || snakeHead.x >= PlayArea.horizontalRange) {
+			return true;
+		}
+
+		// Check collision with horizontal borders
+		if (snakeHead.y < 0 || snakeHead.y >= PlayArea.verticalRange) {
+			return true;
+		}
+
+		// Check collision of snake with itself
+		for (let i = 1; i < Snake.body.length; i++) {
+			if (snakeHead.x == Snake.body[i].x &&
+					snakeHead.y == Snake.body[i].y) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
