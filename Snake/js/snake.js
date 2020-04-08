@@ -11,8 +11,12 @@ const Util = {
 		return y * Box.size + Box.size / 2 + Scoreboard.height;
 	},
 
-	ateFood: function(head) {
-		return (head.x == Food.x && head.y == Food.y);
+	foodEaten: function() {
+		return (Snake.body[0].x == Food.x && Snake.body[0].y == Food.y);
+	},
+
+	collisionOccured: function() {
+
 	}
 }
 
@@ -51,7 +55,7 @@ const Direction = Object.freeze({
 });
 
 // Scoreboard
-const Scoreboard = Object.freeze({
+const Scoreboard = {
 
 	x: 0,
 	y: 0,
@@ -82,7 +86,7 @@ const Scoreboard = Object.freeze({
 		// Reset score at the beginning of a new game
 		this.score = 0;
 	}
-});
+}
 
 // Play area
 const PlayArea = Object.freeze({
@@ -148,29 +152,26 @@ const Snake = {
 				break;
 		}
 
-		if (Util.ateFood(newHead)) {
+		// Add a new head
+		this.body.unshift(newHead);
+
+		if (Util.foodEaten()) {
 
 			// Play score sound
 			Sound.SCORE.currentTime = 0;  // To play instantly, irrespective of previous sound finish
 			Sound.SCORE.play();
-			console.log("Food ate at:", Food.x, Food.y);
 			
 			// Place food in a new spot
 			Food.reset();
 
 			// Increment the score
 			Scoreboard.score++;
-			console.log("New body: ", this.body);
-			console.log("Score:", Scoreboard.score);
 
 		} else {
 
 			// Remove the tail only if the snake didn't eat the food
 			this.body.pop();
 		}
-
-		// Add a new head
-		this.body.unshift(newHead);
 		
 	},
 
@@ -283,15 +284,15 @@ function update() {
 function draw() {
 	Scoreboard.draw();
 	PlayArea.draw();
-	Food.draw();
 	Snake.draw();
+	Food.draw();
 }
 
 // Reset the objects
 function reset() {
 	Scoreboard.reset();
-	Food.reset();
 	Snake.reset();
+	Food.reset();
 }
 
 // Keep refreshing every frame
