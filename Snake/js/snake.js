@@ -9,6 +9,10 @@ const Util = {
 
 	getYCoordinate: function(y) {
 		return y * Box.size + Box.size / 2 + Scoreboard.height;
+	},
+
+	ateFood: function(head) {
+		return (head.x == Food.x && head.y == Food.y);
 	}
 }
 
@@ -48,6 +52,7 @@ const Direction = Object.freeze({
 
 // Scoreboard
 const Scoreboard = Object.freeze({
+
 	x: 0,
 	y: 0,
 	width: canvas.width,
@@ -81,6 +86,7 @@ const Scoreboard = Object.freeze({
 
 // Play area
 const PlayArea = Object.freeze({
+
 	x: 0,
 	y: Scoreboard.height,
 	width: canvas.width,
@@ -96,6 +102,7 @@ const PlayArea = Object.freeze({
 
 // Snake
 const Snake = {
+
 	pieceSize: Box.size - 2 * Box.padding,
 	direction: Direction.RIGHT,
 	body: [],
@@ -104,14 +111,23 @@ const Snake = {
 		for (let i = 0; i < this.body.length; i++) {
 			let x = Util.getXCoordinate(this.body[i].x);
 			let y = Util.getYCoordinate(this.body[i].y);
-			context.fillStyle = "#663300";
+			context.fillStyle = (i == 0 ? "#331a00" : "#663300");
 			context.fillRect(x - this.pieceSize / 2, y - this.pieceSize / 2, this.pieceSize, this.pieceSize);
 		}
 	},
 
 	update: function() {
+
+		// Only animate the snake in playing state
+		if (currentState != State.PLAYING) {
+			return;
+		}
+
 		let oldHead = this.body[0];
-		let newHead = oldHead;
+		let newHead = {
+			x: oldHead.x,
+			y: oldHead.y
+		};
 
 		switch (this.direction) {
 
@@ -132,8 +148,30 @@ const Snake = {
 				break;
 		}
 
+		if (Util.ateFood(newHead)) {
+
+			// Play score sound
+			Sound.SCORE.currentTime = 0;  // To play instantly, irrespective of previous sound finish
+			Sound.SCORE.play();
+			console.log("Food ate at:", Food.x, Food.y);
+			
+			// Place food in a new spot
+			Food.reset();
+
+			// Increment the score
+			Scoreboard.score++;
+			console.log("New body: ", this.body);
+			console.log("Score:", Scoreboard.score);
+
+		} else {
+
+			// Remove the tail only if the snake didn't eat the food
+			this.body.pop();
+		}
+
+		// Add a new head
 		this.body.unshift(newHead);
-		this.body.pop();
+		
 	},
 
 	reset: function() {
@@ -148,6 +186,7 @@ const Snake = {
 
 // Food
 const Food = {
+
 	x: 0,
 	y: 0,
 	height: Box.size,
@@ -157,10 +196,6 @@ const Food = {
 		let x = Util.getXCoordinate(this.x);
 		let y = Util.getYCoordinate(this.y);
 		context.drawImage(foodImage, x - this.width / 2, y - this.height / 2);
-	},
-
-	update: function() {
-
 	},
 
 	reset: function() {
@@ -241,6 +276,7 @@ function gameOver() {
 // Update the objects
 function update() {
 	Snake.update();
+	// Scoreboard.update();
 }
 
 // Draw the objects
@@ -264,6 +300,8 @@ function loop() {
 	draw();
 }
 
+// Reset objects initially
 reset();
+
 // Refresh every 100 ms
 setInterval(loop, 100);
