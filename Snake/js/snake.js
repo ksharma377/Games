@@ -1,32 +1,13 @@
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
-// Utility functions to convert box coordinates to actual coordinates
-const Util = {
-	getXCoordinate: function(x) {
-		return x * Box.size + Box.size / 2;
-	},
-
-	getYCoordinate: function(y) {
-		return y * Box.size + Box.size / 2 + Scoreboard.height;
-	},
-
-	foodEaten: function() {
-		return (Snake.body[0].x == Food.x && Snake.body[0].y == Food.y);
-	},
-
-	collisionOccured: function() {
-
-	}
-}
-
 // Load images
 const foodImage = new Image();
 foodImage.src = "images/food.png";
 
 // Load sounds
 const Sound = {
-	SCORE: new Audio("sounds/sfx_score.mp3"),
+	EAT: new Audio("sounds/sfx_eat.mp3"),
 	DIE: new Audio("sounds/sfx_die.mp3")
 }
 
@@ -158,8 +139,8 @@ const Snake = {
 		if (Util.foodEaten()) {
 
 			// Play score sound
-			Sound.SCORE.currentTime = 0;  // To play instantly, irrespective of previous sound finish
-			Sound.SCORE.play();
+			Sound.EAT.currentTime = 0;  // To play instantly, irrespective of previous sound finish
+			Sound.EAT.play();
 			
 			// Place food in a new spot
 			Food.reset();
@@ -176,8 +157,14 @@ const Snake = {
 	},
 
 	reset: function() {
+
+		// Reset direction to the right
 		this.direction = Direction.RIGHT;
+
+		// Clear the body
 		this.body.splice(0, this.body.length);
+
+		// Push a new head
 		this.body.push({
 			x: PlayArea.horizontalRange / 2,
 			y: PlayArea.verticalRange / 2
@@ -194,12 +181,15 @@ const Food = {
 	width: Box.size,
 
 	draw: function() {
+
 		let x = Util.getXCoordinate(this.x);
 		let y = Util.getYCoordinate(this.y);
 		context.drawImage(foodImage, x - this.width / 2, y - this.height / 2);
 	},
 
 	reset: function() {
+
+		// Reset food to random location
 		this.x = Math.floor(Math.random() * PlayArea.horizontalRange);
 		this.y = Math.floor(Math.random() * PlayArea.verticalRange);
 	}
@@ -277,7 +267,6 @@ function gameOver() {
 // Update the objects
 function update() {
 	Snake.update();
-	// Scoreboard.update();
 }
 
 // Draw the objects
@@ -306,3 +295,27 @@ reset();
 
 // Refresh every 100 ms
 setInterval(loop, 100);
+
+// Utility functions
+const Util = {
+
+	// Convert box X coordinate to canvas pixels (centered at the box)
+	getXCoordinate: function(x) {
+		return x * Box.size + Box.size / 2;
+	},
+
+	// Convert box Y coordinate to canvas pixels (centered at the box)
+	getYCoordinate: function(y) {
+		return y * Box.size + Box.size / 2 + Scoreboard.height;
+	},
+
+	// To check if the snake ate the food
+	foodEaten: function() {
+		return (Snake.body[0].x == Food.x && Snake.body[0].y == Food.y);
+	},
+
+	// To check if the snake collided with itself or the walls
+	collisionOccured: function() {
+
+	}
+}
