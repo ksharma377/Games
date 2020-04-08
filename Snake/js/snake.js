@@ -235,14 +235,14 @@ window.addEventListener("keydown", function(event) {
 			break;
 
 		case State.PLAYING:
-			// Check for arrow keys
-			if (key == 37 && Snake.direction != Direction.RIGHT) {
+			// Check for arrow keys or W, A, S, D
+			if ((key == 37 || key == 65) && Snake.direction != Direction.RIGHT) {
 				Snake.direction = Direction.LEFT;
-			} else if (key == 38 && Snake.direction != Direction.DOWN) {
+			} else if ((key == 38 || key == 87) && Snake.direction != Direction.DOWN) {
 				Snake.direction = Direction.UP;
-			} else if (key == 39 && Snake.direction != Direction.LEFT) {
+			} else if ((key == 39 || key == 68) && Snake.direction != Direction.LEFT) {
 				Snake.direction = Direction.RIGHT;
-			} else if (key == 40 && Snake.direction != Direction.UP) {
+			} else if ((key == 40 || key == 83) && Snake.direction != Direction.UP) {
 				Snake.direction = Direction.DOWN;
 			}
 			break;
