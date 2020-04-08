@@ -1,6 +1,17 @@
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
+// Utility functions to convert box coordinates to actual coordinates
+const Util = {
+	getXCoordinate: function(x) {
+		return x * Box.size + Box.size / 2;
+	},
+
+	getYCoordinate: function(y) {
+		return y * Box.size + Box.size / 2 + Scoreboard.height;
+	}
+}
+
 // Load images
 const foodImage = new Image();
 foodImage.src = "images/food.png";
@@ -83,10 +94,6 @@ const PlayArea = Object.freeze({
 	}
 });
 
-// // Horizontal and vertical range
-// const horizontalRange = PlayArea.width / box;
-// const verticalRange = PlayArea.height / box;
-
 // Snake
 const Snake = {
 	pieceSize: Box.size - 2 * Box.padding,
@@ -94,11 +101,39 @@ const Snake = {
 	body: [],
 
 	draw: function() {
-
+		for (let i = 0; i < this.body.length; i++) {
+			let x = Util.getXCoordinate(this.body[i].x);
+			let y = Util.getYCoordinate(this.body[i].y);
+			context.fillStyle = "#663300";
+			context.fillRect(x - this.pieceSize / 2, y - this.pieceSize / 2, this.pieceSize, this.pieceSize);
+		}
 	},
 
 	update: function() {
+		let oldHead = this.body[0];
+		let newHead = oldHead;
 
+		switch (this.direction) {
+
+			case Direction.RIGHT:
+				newHead.x++;
+				break;
+			
+			case Direction.LEFT:
+				newHead.x--;
+				break;
+
+			case Direction.UP:
+				newHead.y--;
+				break;
+					
+			case Direction.DOWN:
+				newHead.y++;
+				break;
+		}
+
+		this.body.unshift(newHead);
+		this.body.pop();
 	},
 
 	reset: function() {
@@ -119,7 +154,9 @@ const Food = {
 	width: Box.size,
 
 	draw: function() {
-
+		let x = Util.getXCoordinate(this.x);
+		let y = Util.getYCoordinate(this.y);
+		context.drawImage(foodImage, x - this.width / 2, y - this.height / 2);
 	},
 
 	update: function() {
@@ -127,51 +164,9 @@ const Food = {
 	},
 
 	reset: function() {
-
+		this.x = Math.floor(Math.random() * PlayArea.horizontalRange);
+		this.y = Math.floor(Math.random() * PlayArea.verticalRange);
 	}
-}
-
-// Score
-const score = {
-	best: 0,
-	value: 0,
-
-	draw: function() {
-
-		context.fillStyle = "#ffffff";
-		context.strokeStyle = "#000000";
-
-		if (currentState == State.PLAYING) {
-			context.lineWidth = 2;
-			context.font = "35px Teko";
-			context.fillText(this.value, canvas.width / 2 - 16, 50);
-			context.strokeText(this.value, canvas.width / 2 - 16, 50);
-		} else if (currentState == State.GAME_OVER) {
-			context.font = "25px Teko";
-			context.fillText(this.value, gameOver.destinationX + gameOver.width - 50, gameOver.destinationY + 95);
-			context.strokeText(this.value, gameOver.destinationX + gameOver.width - 50, gameOver.destinationY + 95);
-			context.fillText(this.best, gameOver.destinationX + gameOver.width - 50, gameOver.destinationY + gameOver.height - 65);
-			context.strokeText(this.best, gameOver.destinationX + gameOver.width - 50, gameOver.destinationY + gameOver.height - 65);
-		}
-	},
-
-	reset: function() {
-
-		// Reset the score when a game begins
-		this.value = 0;
-	}
-}
-
-// Start the game
-function startGame() {
-	currentState = State.PLAYING;
-}
-
-// Game over
-function gameOver() {
-	currentState = State.GAME_OVER;
-	Sound.DIE.currentTime = 0;  // To play instantly, irrespective of previous sound finish
-	Sound.DIE.play();
 }
 
 // Add click listener to the canvas
@@ -227,20 +222,39 @@ window.addEventListener("keydown", function(event) {
 
 });
 
+// Start the game
+function startGame() {
+	currentState = State.PLAYING;
+}
+
+// Game over
+function gameOver() {
+
+	// Play die sound
+	Sound.DIE.currentTime = 0;  // To play instantly, irrespective of previous sound finish
+	Sound.DIE.play();
+
+	// Change game state
+	currentState = State.GAME_OVER;
+}
+
 // Update the objects
 function update() {
-	
+	Snake.update();
 }
 
 // Draw the objects
 function draw() {
 	Scoreboard.draw();
 	PlayArea.draw();
+	Food.draw();
+	Snake.draw();
 }
 
 // Reset the objects
 function reset() {
 	Scoreboard.reset();
+	Food.reset();
 	Snake.reset();
 }
 
@@ -248,7 +262,6 @@ function reset() {
 function loop() {
 	update();
 	draw();
-	requestAnimationFrame(loop);
 }
 
 reset();
