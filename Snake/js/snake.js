@@ -47,7 +47,7 @@ const Scoreboard = {
 	draw: function() {
 
 		// Background color
-		context.fillStyle = "#003300";//"#663300";
+		context.fillStyle = "#003300";
 		context.fillRect(this.x, this.y, this.width, this.height);
 
 		// Food
